@@ -14,8 +14,6 @@ public class OnlineGameManager : MonoBehaviourPunCallbacks
  
     private const string GAME_STARTED_RPC = nameof(GameStarted);
     private const string COUNTDOWN_STARTED_RPC = nameof(CountdownStarted);
-    private const string ASK_FOR_RANDOM_SPAWN_POINT_RPC = nameof(AskForRandomSpawnPoint);
-    private const string SPAWN_PLAYER_CLIENT_RPC = nameof(SpawnPlayer);
 
     private int someVariable;
     public bool hasGameStarted = false;
@@ -25,7 +23,7 @@ public class OnlineGameManager : MonoBehaviourPunCallbacks
     [SerializeField] private TextMeshProUGUI currentSpawnPointsInfoText;
     [SerializeField] private TextMeshProUGUI countdownText;
     [SerializeField] private Button startGameButtonUI;
-    [SerializeField] private SpawnPoint[] spawnPoints;
+    public SpawnPoint[] spawnPoints;
     
     private PlayerController localPlayerController;
 
@@ -38,7 +36,7 @@ public class OnlineGameManager : MonoBehaviourPunCallbacks
         {
             int countdownRandomTime = Random.Range(3, 8);
             photonView.RPC(COUNTDOWN_STARTED_RPC,
-                RpcTarget.AllViaServer, countdownRandomTime );
+                RpcTarget.AllViaServer, countdownRandomTime);
             startGameButtonUI.interactable = false;
         }
     }
@@ -69,59 +67,13 @@ public class OnlineGameManager : MonoBehaviourPunCallbacks
         Debug.Log("Game Started!!! WHOW");
     }
 
-    [PunRPC]
-    void AskForRandomSpawnPoint(PhotonMessageInfo messageInfo)
-    {
-        List<SpawnPoint> availableSpawnPoints = new List<SpawnPoint>();
-        foreach (SpawnPoint spawnPoint in spawnPoints)
-        {
-            if(!spawnPoint.taken)
-             availableSpawnPoints.Add(spawnPoint);
-        }
-
-        SpawnPoint chosenSpawnPoint =
-            availableSpawnPoints[Random.Range(0, availableSpawnPoints.Count)];
-        chosenSpawnPoint.taken = true;
-        
-        bool[] takenSpawnPoints = new bool[spawnPoints.Length];
-        for (int i = 0; i < spawnPoints.Length; i++)
-        {
-            takenSpawnPoints[i] = spawnPoints[i].taken;
-        }
-        photonView.RPC(SPAWN_PLAYER_CLIENT_RPC,
-            messageInfo.Sender, chosenSpawnPoint.ID,
-            takenSpawnPoints);
-    }
-
-    [PunRPC]
-    void SpawnPlayer(int spawnPointID, bool[] takenSpawnPoints)
-    {
-        SpawnPoint spawnPoint = GetSpawnPointByID(spawnPointID);
-        localPlayerController =
-            PhotonNetwork.Instantiate(NETWORK_PLAYER_PREFAB_NAME, 
-                    spawnPoint.transform.position, 
-                    spawnPoint.transform.rotation)
-                .GetComponent<PlayerController>();
-        
-        for (int i = 0; i < takenSpawnPoints.Length; i++)
-        {
-            spawnPoints[i].taken = takenSpawnPoints[i];
-        }
-        
-    }
-    
     #endregion
 
     void Start()
     {
         if (PhotonNetwork.IsConnectedAndReady)
         {
-            // localPlayerController =
-            //     PhotonNetwork.Instantiate(NETWORK_PLAYER_PREFAB_NAME, 
-            //             spawnPoints[PhotonNetwork.LocalPlayer.ActorNumber - 1].position, 
-            //             spawnPoints[PhotonNetwork.LocalPlayer.ActorNumber - 1].rotation)
-            //         .GetComponent<PlayerController>();
-            photonView.RPC(ASK_FOR_RANDOM_SPAWN_POINT_RPC, RpcTarget.MasterClient);
+
             if (PhotonNetwork.IsMasterClient)
             {
                 startGameButtonUI.interactable = true;
@@ -177,16 +129,7 @@ public class OnlineGameManager : MonoBehaviourPunCallbacks
         }
     }
 
-    private SpawnPoint GetSpawnPointByID(int targetID)
-    {
-        foreach (SpawnPoint spawnPoint in spawnPoints)
-        {
-            if (spawnPoint.ID == targetID)
-                return spawnPoint;
-        }
-
-        return null;
-    }
+   
 
 
 }
