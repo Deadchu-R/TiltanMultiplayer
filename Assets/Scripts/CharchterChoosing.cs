@@ -7,10 +7,6 @@ public class CharchterChoosing : MonoBehaviourPun
 {
     private PlayerController localPlayerController;
 
-    private Dictionary<Button, Button> PlayerMasterConfirmMapping = new Dictionary<Button, Button>();
-
-    private Dictionary<Button, Button> CharchterPlayerConfirmMapping = new Dictionary<Button, Button>();
-
     [SerializeField] private OnlineGameManager onlineGameManager;
 
     [SerializeField] private SpawnPoint[] spawnPoint;
@@ -39,7 +35,6 @@ public class CharchterChoosing : MonoBehaviourPun
     private const string YELLOW_PLAYER_PREFAB_NAME = "YellowNetworkPlayerObject";
 
 
-
     private void Start()
     {
         spawnPoint = onlineGameManager.spawnPoints;
@@ -54,33 +49,7 @@ public class CharchterChoosing : MonoBehaviourPun
             button.gameObject.SetActive(false);
         }
 
-        SetButtonMapDictioneryPlayer();
-        SetButtonMapDictioneryMaster();
-    }
-
-    public void SetButtonMapDictioneryPlayer()
-    {
-        for (int i = 0; i < CharchterChoiceButtons.Length; i++)
-        {
-            Button charchterChoiceButton = CharchterChoiceButtons[i];
-            Button confirmButton = PlayerConfirmChoiceButtons[i];
-
-            CharchterPlayerConfirmMapping.Add(charchterChoiceButton, confirmButton);
-            confirmButton.gameObject.SetActive(false);
-
-        }
-    }
-
-    public void SetButtonMapDictioneryMaster()
-    {
-        for (int i = 0; i < CharchterChoiceButtons.Length; i++)
-        {
-            Button charchterChoiceButton = CharchterChoiceButtons[i];
-            Button confirmButton = MasteClientConfirmChioceButtons[i];
-
-            PlayerMasterConfirmMapping.Add(charchterChoiceButton, confirmButton);
-            confirmButton.gameObject.SetActive(false);
-        }
+      
     }
 
     public void ChooseChacrchter(int characterButtonIndex)
