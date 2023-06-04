@@ -49,29 +49,32 @@ public class CharchterChoosing : MonoBehaviourPun
             button.gameObject.SetActive(false);
         }
 
-      
+
     }
 
-    public void ChooseChacrchter(int characterButtonIndex)
+    public void ChooseChacrchter(int characterIndex)
     {
-        photonView.RPC(CHOOSE_CHARCHTER_RPC, RpcTarget.AllViaServer, characterButtonIndex);
+        photonView.RPC(CHOOSE_CHARCHTER_RPC, RpcTarget.AllViaServer, characterIndex);
     }
 
 
-    public void ConfirmChacrchter(int characterButtonIndex)
+    public void ConfirmChacrchter(int characterIndex)
     {
-        photonView.RPC(CONFIRM_CHARCHTER_RPC, RpcTarget.AllViaServer, characterButtonIndex);
+        photonView.RPC(CONFIRM_CHARCHTER_RPC, RpcTarget.AllViaServer, characterIndex);
     }
 
-    public void ConfirmLocation(int characterButtonIndex)
+    public void ConfirmLocation(int characterIndex)
     {
-        CharchterChoiceUI.gameObject.SetActive(false);
-
-        if (!CharchterChoiceUI.gameObject.activeSelf)
+        if (PhotonNetwork.IsMasterClient)
         {
-            PhotonMessageInfo info = new PhotonMessageInfo();
-            photonView.RPC(ASK_FOR_RANDOM_SPAWN_POINT_RPC, RpcTarget.MasterClient, info.Sender, characterButtonIndex);
-            photonView.RPC(BLOCK_CHARCHTER_RPC, RpcTarget.AllViaServer, characterButtonIndex);
+            CharchterChoiceUI.gameObject.SetActive(false);
+
+            if (!CharchterChoiceUI.gameObject.activeSelf)
+            {
+                PhotonMessageInfo info = new PhotonMessageInfo();
+                photonView.RPC(ASK_FOR_RANDOM_SPAWN_POINT_RPC, RpcTarget.MasterClient, info.Sender, characterIndex);
+                photonView.RPC(BLOCK_CHARCHTER_RPC, RpcTarget.AllViaServer, characterIndex);
+            }
         }
     }
     private SpawnPoint GetSpawnPointByID(int targetID)
@@ -99,7 +102,7 @@ public class CharchterChoosing : MonoBehaviourPun
         }
 
         SpawnPoint chosenSpawnPoint =
-            availableSpawnPoints[UnityEngine.Random.Range(0, availableSpawnPoints.Count)];
+            availableSpawnPoints[Random.Range(0, availableSpawnPoints.Count)];
         chosenSpawnPoint.taken = true;
 
         bool[] takenSpawnPoints = new bool[spawnPoint.Length];
@@ -148,12 +151,12 @@ public class CharchterChoosing : MonoBehaviourPun
         }
 
 
-       
+
 
     }
 
     [PunRPC]
-    public void ChooseCharchterRPC(int characterButtonIndex)
+    public void ChooseCharchterRPC(int characterIndex)
     {
         foreach (Button button in MasteClientConfirmChioceButtons)
         {
@@ -165,14 +168,14 @@ public class CharchterChoosing : MonoBehaviourPun
             button.gameObject.SetActive(false);
         }
 
-        Button pressedButton = PlayerConfirmChoiceButtons[characterButtonIndex];
+        Button pressedButton = PlayerConfirmChoiceButtons[characterIndex];
         pressedButton.gameObject.SetActive(true);
 
     }
 
 
     [PunRPC]
-    public void ConfirmCharchterRPC(int characterButtonIndex)
+    public void ConfirmCharchterRPC(int characterIndex)
     {
 
         foreach (Button masterButton in MasteClientConfirmChioceButtons)
@@ -180,26 +183,32 @@ public class CharchterChoosing : MonoBehaviourPun
             masterButton.gameObject.SetActive(false);
         }
 
-        Button pressedButton = MasteClientConfirmChioceButtons[characterButtonIndex];
+        Button pressedButton = MasteClientConfirmChioceButtons[characterIndex];
         pressedButton.gameObject.SetActive(true);
 
-        photonView.RPC(PLAYER_BUTTON_DISAPPER_RPC, RpcTarget.AllViaServer, characterButtonIndex);
+        if (!CharchterChoiceUI.gameObject.activeSelf && PhotonNetwork.IsMasterClient)
+        {
+            CharchterChoiceUI.gameObject.SetActive(true);
+        }
+
+
+        photonView.RPC(PLAYER_BUTTON_DISAPPER_RPC, RpcTarget.AllViaServer, characterIndex);
 
 
     }
 
     [PunRPC]
-    public void BlockCharchterChoiceRPC(int characterButtonIndex)
+    public void BlockCharchterChoiceRPC(int characterIndex)
     {
-        CharchterChoiceButtons[characterButtonIndex].gameObject.SetActive(false);
-        MasteClientConfirmChioceButtons[characterButtonIndex].gameObject.SetActive(false);
-        PlayerConfirmChoiceButtons[characterButtonIndex].gameObject.SetActive(false);
+        CharchterChoiceButtons[characterIndex].gameObject.SetActive(false);
+        MasteClientConfirmChioceButtons[characterIndex].gameObject.SetActive(false);
+        PlayerConfirmChoiceButtons[characterIndex].gameObject.SetActive(false);
     }
 
     [PunRPC]
-    public void PlayerButtonDisapperRPC(int characterButtonIndex)
+    public void PlayerButtonDisapperRPC(int characterIndex)
     {
-        PlayerConfirmChoiceButtons[characterButtonIndex].gameObject.SetActive(false);
+        PlayerConfirmChoiceButtons[characterIndex].gameObject.SetActive(false);
     }
 
 
