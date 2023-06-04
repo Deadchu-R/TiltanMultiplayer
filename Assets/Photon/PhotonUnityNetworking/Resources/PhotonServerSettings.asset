@@ -51,6 +51,14 @@ MonoBehaviour:
   - PlaceCharchter
   - ChooseCharchter
   - ChooseCharchterRPC
+  - AskForRandomSpawnPointRPC
+  - ButtonDisapperRPC
+  - PlaceCharchterRPC
+  - SpawnPlayerRPC
+  - ConfirmCharchterRPC
+  - MasterButtonDisapperRPC
+  - PlayerButtonDisapperRPC
+  - BlockCharchterChoiceRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
